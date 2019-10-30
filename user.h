@@ -5,6 +5,8 @@ struct rtcdate;
 int fork(void);
 int exit(void) __attribute__((noreturn));
 int wait(void);
+// Change
+int waitx(int*, int*);
 int pipe(int*);
 int write(int, const void*, int);
 int read(int, void*, int);
@@ -27,7 +29,7 @@ int uptime(void);
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);
-void *memmove(void*, const void*, int);
+void* memmove(void*, const void*, int);
 char* strchr(const char*, char c);
 int strcmp(const char*, const char*);
 void printf(int, const char*, ...);
