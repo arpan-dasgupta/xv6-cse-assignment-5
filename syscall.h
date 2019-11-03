@@ -22,3 +22,6 @@
 #define SYS_close 21
 // Change
 #define SYS_waitx 22
+// #ifdef MLFQ
+#define SYS_getpinfo 23
+// #endif

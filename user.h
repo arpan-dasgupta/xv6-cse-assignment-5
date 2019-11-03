@@ -1,5 +1,7 @@
 struct stat;
 struct rtcdate;
+struct proc_stat;
+#define MLFQ
 
 // system calls
 int fork(void);
@@ -7,6 +9,9 @@ int exit(void) __attribute__((noreturn));
 int wait(void);
 // Change
 int waitx(int*, int*);
+#ifdef MLFQ
+int getpinfo(struct proc_stat*);
+#endif
 int pipe(int*);
 int write(int, const void*, int);
 int read(int, void*, int);

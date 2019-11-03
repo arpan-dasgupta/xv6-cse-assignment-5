@@ -9,6 +9,9 @@ struct cpu {
     int ncli;                   // Depth of pushcli nesting.
     int intena;                 // Were interrupts enabled before pushcli?
     struct proc *proc;          // The process running on this cpu or null
+#ifdef MLFQ
+    struct proc_stat *proc_s;  // The process running on this cpu or null
+#endif
 };
 
 extern struct cpu cpus[NCPU];
@@ -51,9 +54,10 @@ struct proc {
     struct inode *cwd;           // Current directory
     char name[16];               // Process name (debugging)
     // Change
-    int ctime;  // Creation time
-    int rtime;  // Running time
-    int etime;  // End time
+    int priority;  // Priority of process (1-100)
+    int ctime;     // Creation time
+    int rtime;     // Running time
+    int etime;     // End time
 };
 
 void updateProc();
@@ -73,3 +77,6 @@ struct proc_stat {
                    // priority queue
 };
 #endif
+struct process printStatus();
+struct proc_stat *myprocstat(void);
+int getpinfo(struct proc_stat *);

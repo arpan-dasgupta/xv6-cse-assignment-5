@@ -4,6 +4,9 @@ struct file;
 struct inode;
 struct pipe;
 struct proc;
+#ifdef MLFQ
+struct proc_stat;
+#endif
 struct rtcdate;
 struct spinlock;
 struct sleeplock;
@@ -110,6 +113,9 @@ int growproc(int);
 int kill(int);
 struct cpu* mycpu(void);
 struct proc* myproc();
+#ifdef MLFQ
+struct proc_stat* myprocstat();
+#endif
 void pinit(void);
 void procdump(void);
 void scheduler(void) __attribute__((noreturn));
@@ -120,6 +126,9 @@ void userinit(void);
 int wait(void);
 //  Changed here
 int waitx(int*, int*);
+#ifdef MLFQ
+int getpinfo(struct proc_stat*);
+#endif
 void wakeup(void*);
 void yield(void);
 
