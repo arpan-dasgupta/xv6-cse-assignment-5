@@ -38,6 +38,11 @@ int sys_getpinfo(void) {
 }
 #endif
 
+int sys_printStatus(void) {
+    printStatus();
+    return 1;
+}
+
 int sys_kill(void) {
     int pid;
 

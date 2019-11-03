@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "mmu.h": "c",
-        "memlayout.h": "c"
+        "memlayout.h": "c",
+        "spinlock.h": "c"
     }
 }

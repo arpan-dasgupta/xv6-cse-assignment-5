@@ -77,6 +77,6 @@ struct proc_stat {
                    // priority queue
 };
 #endif
-struct process printStatus();
+void printStatus();
 struct proc_stat *myprocstat(void);
 int getpinfo(struct proc_stat *);

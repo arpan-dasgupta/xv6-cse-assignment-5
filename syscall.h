@@ -25,3 +25,4 @@
 // #ifdef MLFQ
 #define SYS_getpinfo 23
 // #endif
+#define SYS_printStatus 24

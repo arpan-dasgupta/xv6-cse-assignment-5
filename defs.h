@@ -126,6 +126,7 @@ void userinit(void);
 int wait(void);
 //  Changed here
 int waitx(int*, int*);
+void printStatus();
 #ifdef MLFQ
 int getpinfo(struct proc_stat*);
 #endif

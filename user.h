@@ -9,6 +9,7 @@ int exit(void) __attribute__((noreturn));
 int wait(void);
 // Change
 int waitx(int*, int*);
+void printStatus();
 #ifdef MLFQ
 int getpinfo(struct proc_stat*);
 #endif

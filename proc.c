@@ -27,8 +27,32 @@ void updateProc() {
     release(&ptable.lock);
 }
 
-struct process printStatus() {
-    return ptable;
+void printStatus() {
+    acquire(&ptable.lock);
+    {
+        struct proc *p;
+        cprintf("Ctime\tRuntime\tState\tPrty.\tPname\n");
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+            if (p->state == RUNNING || p->state == RUNNABLE ||
+                p->state == SLEEPING) {
+                cprintf("%d\t%d\t%d\t%d\t%s\n", p->ctime, p->rtime, p->state,
+                        p->priority, p->name);
+            }
+        }
+    }
+#ifdef MLFQ
+    struct proc *p;
+    struct proc_stat *pp;
+    cprintf("Pid\tRuntime\tNum run\tPrty.\n");
+    for (p = ptable.proc, pp = ptable.ps; p < &ptable.proc[NPROC]; p++, pp++) {
+        if (p->state == RUNNING || p->state == RUNNABLE ||
+            p->state == SLEEPING) {
+            cprintf("%d\t%d\t%d\t%d\n", pp->pid, (int)pp->runtime, pp->num_run,
+                    pp->current_queue);
+        }
+    }
+#endif
+    release(&ptable.lock);
 }
 
 static struct proc *initproc;

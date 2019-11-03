@@ -92,6 +92,7 @@ extern int sys_sleep(void);
 extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_waitx(void);
+extern int sys_printStatus(void);
 #ifdef MLFQ
 extern int sys_getpinfo(void);
 #endif
@@ -122,9 +123,10 @@ static int (*syscalls[])(void) = {
     [SYS_close] sys_close,
     // Change
     [SYS_waitx] sys_waitx,
-#ifdef MLFQ
+    [SYS_printStatus] sys_printStatus,
+    // #ifdef MLFQ
     [SYS_getpinfo] sys_getpinfo,
-#endif
+    // #endif
 };
 
 void syscall(void) {
