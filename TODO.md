@@ -1,1 +1,4 @@
 - Make CPU to 2 back
+- Yield?
+- MLFQ (and hence updation of proc_stat)
+- Report and graph

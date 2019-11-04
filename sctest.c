@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
             }
             exit();
         } else {
-            set_priority(100 - pid[i], pid[i]);
+            set_priority((pid[i]) / 2, pid[i]);
 #ifdef PBS
 #endif
         }
