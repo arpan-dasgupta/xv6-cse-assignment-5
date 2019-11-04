@@ -123,8 +123,10 @@ void userinit(void);
 int wait(void);
 //  Changed here
 int waitx(int*, int*);
+int set_priority(int, int);
 void printStatus();
-int getpinfo(struct proc_stat*);
+int getpinfo(struct proc_stat*, int);
+int getpid();
 void wakeup(void*);
 void yield(void);
 

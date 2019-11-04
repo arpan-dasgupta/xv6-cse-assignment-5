@@ -31,9 +31,18 @@ int sys_waitx(void) {
 
 int sys_getpinfo(void) {
     struct proc_stat *ps;
-    if (argptr(0, (void *)&ps, sizeof(ps)) < 0)
+    int pid;
+    if (argptr(0, (void *)&ps, sizeof(ps)) < 0 || argint(1, &pid))
         return -1;
-    return getpinfo(ps);
+    return getpinfo(ps, pid);
+}
+
+int sys_set_priority(void) {
+    int v, pid;
+
+    if (argint(0, &v) < 0 || argint(1, &pid) < 0)
+        return -1;
+    return set_priority(v, pid);
 }
 
 int sys_printStatus(void) {

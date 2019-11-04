@@ -153,7 +153,7 @@ found:
     memset(p->context, 0, sizeof *p->context);
     p->context->eip = (uint)forkret;
     // Change
-    p->priority = 100;
+    p->priority = 60;
     p->ctime = ticks;
     p->rtime = 0;
     p->etime = -1;
@@ -183,7 +183,7 @@ void userinit(void) {
     p->tf->esp = PGSIZE;
     p->tf->eip = 0;  // beginning of initcode.S
     // Change
-    p->priority = 100;
+    p->priority = 60;
     p->ctime = ticks;
     p->rtime = 0;
     p->etime = -1;
@@ -260,7 +260,7 @@ int fork(void) {
 
     np->state = RUNNABLE;
     // Change
-    np->priority = 100;
+    np->priority = 60;
     np->ctime = ticks;
     np->rtime = 0;
     np->etime = -1;
@@ -404,9 +404,35 @@ int waitx(int *wtime, int *rtime) {
 }
 
 // Get process information from this syscall
-int getpinfo(struct proc_stat *ps) {
-    ps = myprocstat();
-    return 1;
+int getpinfo(struct proc_stat *ps, int pid) {
+    struct proc_stat *pss;
+    struct proc *p;
+    for (p = ptable.proc, pss = ptable.ps; p < &ptable.proc[NPROC];
+         p++, pss++) {
+        if (p->pid == pid) {
+            ps = pss;
+            return 1;
+        }
+    }
+    return -1;
+}
+
+// int getpid() {
+//     struct proc *p;
+//     p = myproc();
+//     return p->pid;
+// }
+
+int set_priority(int np, int pid) {
+    struct proc *p;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->pid == pid) {
+            int pv = p->priority;
+            p->priority = np;
+            return pv;
+        }
+    }
+    return -1;
 }
 
 // PAGEBREAK: 42

@@ -8,8 +8,9 @@ int exit(void) __attribute__((noreturn));
 int wait(void);
 // Change
 int waitx(int*, int*);
+int set_priority(int, int);
 void printStatus();
-int getpinfo(struct proc_stat*);
+int getpinfo(struct proc_stat*, int);
 int pipe(int*);
 int write(int, const void*, int);
 int read(int, void*, int);

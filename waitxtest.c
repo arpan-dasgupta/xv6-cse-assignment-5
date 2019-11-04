@@ -24,6 +24,5 @@ int main(int argc, char *argv[]) {
         printf(1, "Wait time %d\nRun time %d\n", w, r);
         // printf(1, "Run time - %d\n", *r);
     }
-
     exit();
 }
