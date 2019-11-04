@@ -29,14 +29,12 @@ int sys_waitx(void) {
     return waitx(wtime, rtime);
 }
 
-#ifdef MLFQ
 int sys_getpinfo(void) {
     struct proc_stat *ps;
     if (argptr(0, (void *)&ps, sizeof(ps)) < 0)
         return -1;
     return getpinfo(ps);
 }
-#endif
 
 int sys_printStatus(void) {
     printStatus();

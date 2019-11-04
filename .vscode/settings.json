@@ -2,6 +2,7 @@
     "files.associations": {
         "mmu.h": "c",
         "memlayout.h": "c",
-        "spinlock.h": "c"
+        "spinlock.h": "c",
+        "stat.h": "c"
     }
 }

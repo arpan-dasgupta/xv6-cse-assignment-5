@@ -9,9 +9,7 @@
 
 struct process {
     struct proc proc[NPROC];
-#ifdef MLFQ
     struct proc_stat ps[NPROC];
-#endif
     struct spinlock lock;
 } ptable;
 
@@ -40,7 +38,6 @@ void printStatus() {
             }
         }
     }
-#ifdef MLFQ
     struct proc *p;
     struct proc_stat *pp;
     cprintf("Pid\tRuntime\tNum run\tPrty.\n");
@@ -51,7 +48,6 @@ void printStatus() {
                     pp->current_queue);
         }
     }
-#endif
     release(&ptable.lock);
 }
 
@@ -101,7 +97,6 @@ struct proc *myproc(void) {
     popcli();
     return p;
 }
-#ifdef MLFQ
 // Disable interrupts so that we are not rescheduled
 // while reading proc from the cpu structure
 struct proc_stat *myprocstat(void) {
@@ -113,7 +108,6 @@ struct proc_stat *myprocstat(void) {
     popcli();
     return ps;
 }
-#endif
 // PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYO and initialize
@@ -409,13 +403,11 @@ int waitx(int *wtime, int *rtime) {
     }
 }
 
-#ifdef MLFQ
 // Get process information from this syscall
 int getpinfo(struct proc_stat *ps) {
     ps = myprocstat();
     return 1;
 }
-#endif
 
 // PAGEBREAK: 42
 // Per-CPU process scheduler.
@@ -428,97 +420,107 @@ int getpinfo(struct proc_stat *ps) {
 
 void scheduler(void) {
     struct proc *p;
-    struct proc *chosen;
     struct cpu *c = mycpu();
     c->proc = 0;
-    int flag = 0;
     for (;;) {
-        // Enable interrupts on this processor.
+        struct proc *chosen;
+        chosen = myproc();
+        int flag = 0;
         sti();
-
-        // Loop over process table looking for process to run.
         acquire(&ptable.lock);
+
 #ifdef FCFS
         int mintime = __INT32_MAX__;
 #endif
+
+#ifdef PBS
+        int minpriority = 100;
         for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+            if (p->state != RUNNABLE)
+                continue;
             if (flag == 0) {
                 chosen = p;
                 flag = 1;
             }
+            if (p->priority <= minpriority) {
+                minpriority = p->priority;
+            }
+        }
+        // cprintf("mp  -%d\n", minpriority);
+#endif
+
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
             if (p->state != RUNNABLE)
                 continue;
-            else {
+            if (flag == 0) {
+                chosen = p;
+                flag = 1;
+            }
 #ifdef MLFQ
 
-                chosen = p;
-                // Switch to chosen process.  It is the process's job
-                // to release ptable.lock and then reacquire it
-                // before jumping back to us.
-                c->proc = chosen;
-                switchuvm(chosen);
-                chosen->state = RUNNING;
-                swtch(&(c->scheduler), chosen->context);
-                switchkvm();
-                // Process is done running for now.
-                // It should have changed its p->state before coming back.
-                c->proc = 0;
+            chosen = p;
+            // Switch to chosen process.  It is the process's job
+            // to release ptable.lock and then reacquire it
+            // before jumping back to us.
+            c->proc = chosen;
+            switchuvm(chosen);
+            chosen->state = RUNNING;
+            swtch(&(c->scheduler), chosen->context);
+            switchkvm();
+            // Process is done running for now.
+            // It should have changed its p->state before coming back.
+            c->proc = 0;
 
 #endif
 #ifdef FCFS
-                if (mintime > p->ctime) {
-                    chosen = p;
-                    mintime = p->ctime;
-                }
-
+            if (mintime > p->ctime) {
+                chosen = p;
+                mintime = p->ctime;
+            }
 #endif
 #ifdef PBS
-
+            if (minpriority >= p->priority) {
+                // cprintf("here ( %d %d\n", p->priority, minpriority);
+                // printStatus();
                 chosen = p;
-                // Switch to chosen process.  It is the process's job
-                // to release ptable.lock and then reacquire it
-                // before jumping back to us.
                 c->proc = chosen;
+                minpriority = p->priority;
                 switchuvm(chosen);
                 chosen->state = RUNNING;
 
                 swtch(&(c->scheduler), chosen->context);
+                // cprintf("here )\n");
                 switchkvm();
-
-                // Process is done running for now.
-                // It should have changed its p->state before coming back.
                 c->proc = 0;
-
+                // cprintf("here\n");
+            }
 #endif
 #ifdef DEFAULT
-
-                chosen = p;
-                // Switch to chosen process.  It is the process's job
-                // to release ptable.lock and then reacquire it
-                // before jumping back to us.
-                c->proc = chosen;
-                switchuvm(chosen);
-                chosen->state = RUNNING;
-
-                swtch(&(c->scheduler), chosen->context);
-                switchkvm();
-
-                // Process is done running for now.
-                // It should have changed its p->state before coming back.
-                c->proc = 0;
-
+            chosen = p;
+            // Switch to chosen process.  It is the process's job
+            // to release ptable.lock and then reacquire it
+            // before jumping back to us.
+            c->proc = chosen;
+            switchuvm(chosen);
+            chosen->state = RUNNING;
+            swtch(&(c->scheduler), chosen->context);
+            switchkvm();
+            // Process is done running for now.
+            // It should have changed its p->state before coming back.
+            c->proc = 0;
 #endif
-            }
         }
-        // #ifndef DEFAULT
-        //         c->proc = chosen;
-        //         switchuvm(chosen);
-        //         chosen->state = RUNNING;
+#ifdef FCFS
+        if (flag == 1) {
+            c->proc = chosen;
+            switchuvm(chosen);
+            chosen->state = RUNNING;
 
-        //         swtch(&(c->scheduler), chosen->context);
-        //         switchkvm();
-        //         c->proc = 0;
-        // #endif
+            swtch(&(c->scheduler), chosen->context);
+            switchkvm();
+            c->proc = 0;
+        }
+#endif
         release(&ptable.lock);
     }
 }

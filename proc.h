@@ -1,5 +1,4 @@
 // Per-CPU state
-#define MLFQ
 struct cpu {
     uchar apicid;               // Local APIC ID
     struct context *scheduler;  // swtch() here to enter scheduler
@@ -9,9 +8,7 @@ struct cpu {
     int ncli;                   // Depth of pushcli nesting.
     int intena;                 // Were interrupts enabled before pushcli?
     struct proc *proc;          // The process running on this cpu or null
-#ifdef MLFQ
-    struct proc_stat *proc_s;  // The process running on this cpu or null
-#endif
+    struct proc_stat *proc_s;   // The process running on this cpu or null
 };
 
 extern struct cpu cpus[NCPU];
@@ -67,7 +64,6 @@ void updateProc();
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
-#ifdef MLFQ
 struct proc_stat {
     int pid;            // PID of each process
     float runtime;      // Use suitable unit of time
@@ -76,7 +72,6 @@ struct proc_stat {
     int ticks[5];  // number of ticks each process has received at each of the 5
                    // priority queue
 };
-#endif
 void printStatus();
 struct proc_stat *myprocstat(void);
 int getpinfo(struct proc_stat *);
