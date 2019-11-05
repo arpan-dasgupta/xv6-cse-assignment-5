@@ -12,10 +12,11 @@ unsigned rand() {
     return lfsr = (lfsr >> 1) | (bit << 15);
 }
 int plot[20][20] = {0};
+int ptr[20] = {0};
 
 int main(int argc, char *argv[]) {
     int pid[20];
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 5; i++) {
         pid[i] = fork();
         if (pid[i] < 0) {
             printf(1, "Fork error\n");
@@ -23,15 +24,17 @@ int main(int argc, char *argv[]) {
         } else if (pid[i] == 0) {
             volatile int j = 0;
             int pp = getpid();
-            for (j = 0; j < 10000000 * (i + 1); j++) {
+            for (j = 0; j < 10000000 * (10); j++) {
                 if (j % 10000000 == 0) {
-                    printf(1, "\nPID- %d\t Part- %d", pp, j / 10000000);
+                    // printf(1, "\nPID- %d\t Part- %d", pp, j / 10000000);
 #ifdef MLFQ
                     struct proc_stat *psp =
                         (struct proc_stat *)malloc(sizeof(struct proc_stat));
                     getpinfo(psp, pp);
-                    printf(1, "\tCQ- %d\t RT- %d\t NR- %d", psp->current_queue,
-                           psp->runtime, psp->num_run);
+                    // printf(1, "\tCQ- %d\t RT- %d\t NR- %d",
+                    // psp->current_queue,
+                    //        psp->runtime, psp->num_run);
+                    plot[pp - 4][ptr[pp - 4]++] = psp->current_queue;
 #endif
                     // printStatus();
                 }
@@ -41,13 +44,19 @@ int main(int argc, char *argv[]) {
                 j++;
                 --j;
             }
+            printf(1, "[ ");
+            for (int j = 0; j < ptr[i]; j++) {
+                printf(1, " %d ,", plot[i][j]);
+            }
+            printf(1, " ], \n");
             exit();
         }
     }
     // sleep(5);
     for (int i = 0; i < 15; i++) {
-        int x = wait();
-        printf(1, "\n%d Ended - \n", x);
+        // int x =
+        wait();
+        // printf(1, "\n%d Ended - \n", x);
     }
     exit();
 }

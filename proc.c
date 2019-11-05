@@ -7,7 +7,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "procstat.h"
-int agelim[5] = {75, 60, 45, 25, 15};
+int agelim[5] = {75, 67, 35, 22, 12};
 
 struct process {
     struct proc proc[NPROC];

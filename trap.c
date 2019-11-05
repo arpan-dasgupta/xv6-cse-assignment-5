@@ -14,7 +14,7 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
-int maxwait[5] = {1, 3, 6, 12, 18};
+int maxwait[5] = {2, 3, 5, 7, 9};
 
 void tvinit(void) {
     int i;
