@@ -75,4 +75,5 @@ struct proc_stat {
 void printStatus();
 struct proc_stat *myprocstat(void);
 int getpinfo(struct proc_stat *, int);
+int checkLessPriority(int);
 // int getpid();

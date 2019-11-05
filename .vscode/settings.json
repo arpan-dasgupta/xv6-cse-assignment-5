@@ -3,6 +3,7 @@
         "mmu.h": "c",
         "memlayout.h": "c",
         "spinlock.h": "c",
-        "stat.h": "c"
+        "stat.h": "c",
+        "types.h": "c"
     }
 }

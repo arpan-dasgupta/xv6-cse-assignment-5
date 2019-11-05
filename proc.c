@@ -25,6 +25,18 @@ void updateProc() {
     release(&ptable.lock);
 }
 
+int checkLessPriority(int cp) {
+    // acquire(&ptable.lock);
+    struct proc *p;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state == RUNNABLE && p->priority <= cp) {
+            return 1;
+        }
+    }
+    // release(&ptable.lock);
+    return 0;
+}
+
 void printStatus() {
     acquire(&ptable.lock);
     {
@@ -261,6 +273,9 @@ int fork(void) {
     np->state = RUNNABLE;
     // Change
     np->priority = 60;
+#ifdef PBS
+    np->priority = pid / 2;
+#endif
     np->ctime = ticks;
     np->rtime = 0;
     np->etime = -1;
@@ -407,6 +422,7 @@ int waitx(int *wtime, int *rtime) {
 int getpinfo(struct proc_stat *ps, int pid) {
     struct proc_stat *pss;
     struct proc *p;
+    // acquire(&ptable.lock);
     for (p = ptable.proc, pss = ptable.ps; p < &ptable.proc[NPROC];
          p++, pss++) {
         if (p->pid == pid) {
@@ -414,6 +430,7 @@ int getpinfo(struct proc_stat *ps, int pid) {
             return 1;
         }
     }
+    // release(&ptable.lock);
     return -1;
 }
 
@@ -425,6 +442,7 @@ int getpinfo(struct proc_stat *ps, int pid) {
 
 int set_priority(int np, int pid) {
     struct proc *p;
+    // acquire(&ptable.lock);
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
         if (p->pid == pid) {
             int pv = p->priority;
@@ -432,6 +450,7 @@ int set_priority(int np, int pid) {
             return pv;
         }
     }
+    // release(&ptable.lock);
     return -1;
 }
 

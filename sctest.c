@@ -16,14 +16,17 @@ int main(int argc, char *argv[]) {
             for (j = 0; j < 100000000; j++) {
                 if (j % 10000000 == 0)
                     printf(1, "%d %d\n", pp, j / 10000000);
+                if (j == 5e7) {
+                    set_priority((100 - pp), pp);
+                }
                 j++;
                 --j;
             }
             exit();
         } else {
-            set_priority((pid[i]) / 2, pid[i]);
-#ifdef PBS
-#endif
+            // #ifdef PBS
+            //             set_priority((100 - pid[i]), pid[i]);
+            // #endif
         }
     }
     // sleep(5);
