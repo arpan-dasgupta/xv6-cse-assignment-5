@@ -4,6 +4,7 @@
         "memlayout.h": "c",
         "spinlock.h": "c",
         "stat.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "procstat.h": "c"
     }
 }

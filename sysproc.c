@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "procstat.h"
 
 int sys_fork(void) {
     return fork();
@@ -32,7 +33,7 @@ int sys_waitx(void) {
 int sys_getpinfo(void) {
     struct proc_stat *ps;
     int pid;
-    if (argptr(0, (void *)&ps, sizeof(ps)) < 0 || argint(1, &pid))
+    if (argptr(0, (void *)&ps, sizeof(ps)) < 0 || argint(1, &pid) < 0)
         return -1;
     return getpinfo(ps, pid);
 }

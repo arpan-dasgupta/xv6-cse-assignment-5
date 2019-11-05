@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
         printf(1, "Couldn't fork\n");
     } else if (pid == 0) {
         volatile int c = 0;
-        for (int i = 0; i < 1000000000; i++)
+        for (volatile int i = 0; i < 1000000000; i++)
             c++;
     } else {
         int w, r;

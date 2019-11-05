@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     } else {
         int r, w;
         waitx(&w, &r);
-        printf(1, "Runtime - %d\n", r, pid);
+        printf(1, "Runtime - %d\nWaittime - %d\n", r, w);
     }
     exit();
 }

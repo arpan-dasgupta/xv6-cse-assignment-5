@@ -52,28 +52,22 @@ struct proc {
     char name[16];               // Process name (debugging)
     // Change
     int priority;  // Priority of process (1-100)
+    int letime;    // Last exec time time
     int ctime;     // Creation time
     int rtime;     // Running time
     int etime;     // End time
 };
 
-void updateProc();
+// void updateProc();
 
 // Process memory is laid out contiguously, low addresses first:
 //   text
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
-struct proc_stat {
-    int pid;            // PID of each process
-    float runtime;      // Use suitable unit of time
-    int num_run;        // number of time the process is executed
-    int current_queue;  // current assigned queue
-    int ticks[5];  // number of ticks each process has received at each of the 5
-                   // priority queue
-};
 void printStatus();
 struct proc_stat *myprocstat(void);
 int getpinfo(struct proc_stat *, int);
 int checkLessPriority(int);
+void checkAging(int);
 // int getpid();

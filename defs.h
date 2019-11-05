@@ -4,13 +4,11 @@ struct file;
 struct inode;
 struct pipe;
 struct proc;
-struct proc_stat;
 struct rtcdate;
 struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
-struct proc_stat;
 
 // bio.c
 void binit(void);

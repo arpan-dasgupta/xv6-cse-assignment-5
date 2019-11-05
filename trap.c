@@ -4,6 +4,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "procstat.h"
 #include "x86.h"
 #include "traps.h"
 #include "spinlock.h"
@@ -13,6 +14,7 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
+int maxwait[5] = {4, 8, 16, 32, 64};
 
 void tvinit(void) {
     int i;
@@ -46,7 +48,10 @@ void trap(struct trapframe *tf) {
                 acquire(&tickslock);
                 ticks++;
                 // Change
-                updateProc();
+                // updateProc();
+                if (myproc() && myproc()->state == RUNNING) {
+                    myproc()->rtime++;
+                }
                 wakeup(&ticks);
                 release(&tickslock);
             }
@@ -111,9 +116,35 @@ void trap(struct trapframe *tf) {
         // cprintf("%d- ", flag);
     }
 #endif
+    if (myproc()) {
+        myprocstat()->num_run++;
+        myproc()->letime = ticks;
+    }
 #ifdef MLFQ
-
+    flag = 0;
+    if (myproc()) {
+        struct proc_stat *ps;
+        ps = myprocstat();
+        ps->ticks[ps->current_queue]++;
+        if (maxwait[ps->current_queue] == 0) {
+            cprintf("Ofc here %d \n", ps->current_queue);
+        }
+        if (ps->ticks[ps->current_queue] % maxwait[ps->current_queue] == 0) {
+            int y = myproc()->priority;
+            if (y <= 4) {
+                myproc()->priority++;
+                ps->current_queue++;
+            }
+            if (ps->current_queue > 4) {
+                ps->current_queue = 4;
+            }
+            flag = 1;
+        }
+        flag = checkLessPriority(myproc()->priority);
+    }
+    checkAging(ticks);
 #endif
+
     if (myproc() && myproc()->state == RUNNING &&
         tf->trapno == T_IRQ0 + IRQ_TIMER && flag)
         yield();
