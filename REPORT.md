@@ -20,8 +20,14 @@
 
 ## Analysis
 
-- The timings are not significantly different as each of them has their own best case performance
+- The timings are not significantly different as each of them has their own best case performance.
 - Round Robin performs specifically well in general case.
-- FCFS may penalize IO bound processes and cause convoy effect hence .
-- MLFQ performs worst in this case due to high rate of queue change
-- PBS is not much different from FCFS as priority is not used in timing analysis. However PBS in general is very useful.
+- FCFS may penalize IO bound processes and cause convoy effect hence shows excessively high runtime.
+- MLFQ performs better in larger case due to more frequent queue change in smaller case.
+- PBS performs specifically well due to the specific priority assignment in this tester.
+
+## Conclusion
+
+- No specific algorithm can be termed as the best.
+- FCFS can be said to be significantly worse than other scheduling algorithm.
+- PBS performs best in both cases.

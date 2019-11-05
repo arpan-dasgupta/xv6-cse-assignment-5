@@ -14,7 +14,7 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
-int maxwait[5] = {4, 8, 16, 32, 64};
+int maxwait[5] = {1, 3, 6, 12, 18};
 
 void tvinit(void) {
     int i;
@@ -116,24 +116,22 @@ void trap(struct trapframe *tf) {
         // cprintf("%d- ", flag);
     }
 #endif
-    if (myproc()) {
-        myprocstat()->num_run++;
-        myproc()->letime = ticks;
-    }
 #ifdef MLFQ
     flag = 0;
     if (myproc()) {
         struct proc_stat *ps;
         ps = myprocstat();
         ps->ticks[ps->current_queue]++;
-        if (maxwait[ps->current_queue] == 0) {
-            cprintf("Ofc here %d \n", ps->current_queue);
-        }
+        // if (maxwait[ps->current_queue] == 0) {
+        //     cprintf("Ofc here %d \n", ps->current_queue);
+        // }
         if (ps->ticks[ps->current_queue] % maxwait[ps->current_queue] == 0) {
             int y = myproc()->priority;
             if (y <= 4) {
                 myproc()->priority++;
                 ps->current_queue++;
+                // cprintf("Updrading %d to %d\n", myproc()->pid,
+                //         ps->current_queue);
             }
             if (ps->current_queue > 4) {
                 ps->current_queue = 4;
@@ -144,6 +142,8 @@ void trap(struct trapframe *tf) {
     }
     checkAging(ticks);
 #endif
+    if (myproc() && flag)
+        myproc()->letime = ticks;
 
     if (myproc() && myproc()->state == RUNNING &&
         tf->trapno == T_IRQ0 + IRQ_TIMER && flag)

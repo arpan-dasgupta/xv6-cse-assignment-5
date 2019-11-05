@@ -7,7 +7,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "procstat.h"
-int agelim[5] = {10, 20, 30, 40, 50};
+int agelim[5] = {75, 60, 45, 25, 15};
 
 struct process {
     struct proc proc[NPROC];
@@ -40,6 +40,8 @@ void checkAging(int ticks) {
                     p->letime = ticks;
                     if (ps->current_queue < 0)
                         ps->current_queue = 0;
+                    // cprintf("Downgrading %d to %d\n", p->pid,
+                    //         ps->current_queue);
                 }
             }
         }
@@ -516,11 +518,14 @@ int set_priority(int np, int pid) {
 
 void scheduler(void) {
     struct proc *p;
+    struct proc_stat *ps;
     struct cpu *c = mycpu();
     c->proc = 0;
     for (;;) {
         struct proc *chosen;
+        struct proc_stat *chos;
         chosen = myproc();
+        chos = ptable.ps;
         int flag = 0;
         sti();
         acquire(&ptable.lock);
@@ -561,7 +566,8 @@ void scheduler(void) {
             }
         }
 #endif
-        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        for (p = ptable.proc, ps = ptable.ps; p < &ptable.proc[NPROC];
+             p++, ps++) {
             if (p->state != RUNNABLE)
                 continue;
             if (flag == 0) {
@@ -574,6 +580,7 @@ void scheduler(void) {
                     minpriority = p->priority;
                     letime = p->letime;
                     chosen = p;
+                    chos = ps;
                 }
             }
 #endif
@@ -631,7 +638,7 @@ void scheduler(void) {
             c->proc = chosen;
             switchuvm(chosen);
             chosen->state = RUNNING;
-
+            chos->num_run++;
             swtch(&(c->scheduler), chosen->context);
             switchkvm();
             c->proc = 0;
