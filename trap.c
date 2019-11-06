@@ -14,7 +14,7 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
-int maxwait[5] = {2, 3, 5, 7, 9};
+int maxwait[5] = {1, 2, 4, 8, 13};
 
 void tvinit(void) {
     int i;
@@ -130,15 +130,17 @@ void trap(struct trapframe *tf) {
             if (y <= 4) {
                 myproc()->priority++;
                 ps->current_queue++;
-                // cprintf("Updrading %d to %d\n", myproc()->pid,
-                //         ps->current_queue);
+#ifndef PLOT
+                cprintf("\nShifting PID %d to %d", myproc()->pid,
+                        ps->current_queue);
+#endif
             }
             if (ps->current_queue > 4) {
                 ps->current_queue = 4;
             }
             flag = 1;
         }
-        flag = checkLessPriority(myproc()->priority);
+        flag = checkLessPriority2(myproc()->priority);
     }
     checkAging(ticks);
 #endif

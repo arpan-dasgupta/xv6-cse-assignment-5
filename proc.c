@@ -7,13 +7,25 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "procstat.h"
-int agelim[5] = {75, 67, 35, 22, 12};
+int agelim[5] = {50, 50, 30, 20, 10};
 
 struct process {
     struct proc proc[NPROC];
     struct proc_stat ps[NPROC];
     struct spinlock lock;
 } ptable;
+
+int checkLessPriority2(int cp) {
+    // acquire(&ptable.lock);
+    struct proc *p;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state == RUNNABLE && p->priority < cp) {
+            return 1;
+        }
+    }
+    // release(&ptable.lock);
+    return 0;
+}
 
 int checkLessPriority(int cp) {
     // acquire(&ptable.lock);
@@ -40,8 +52,9 @@ void checkAging(int ticks) {
                     p->letime = ticks;
                     if (ps->current_queue < 0)
                         ps->current_queue = 0;
-                    // cprintf("Downgrading %d to %d\n", p->pid,
-                    //         ps->current_queue);
+#ifndef PLOT
+                    cprintf("\nAging PID %d to %d", p->pid, ps->current_queue);
+#endif
                 }
             }
         }
@@ -469,7 +482,8 @@ int getpinfo(struct proc_stat *ps, int pid) {
             ps->pid = p->pid;
             ps->current_queue = pss->current_queue;
             ps->num_run = pss->num_run;
-            ps->runtime = p->rtime;
+            int v = p->rtime;
+            ps->runtime = v;
             ps->ticks[0] = pss->ticks[0];
             ps->ticks[1] = pss->ticks[1];
             ps->ticks[2] = pss->ticks[2];
@@ -478,7 +492,8 @@ int getpinfo(struct proc_stat *ps, int pid) {
 
             // cprintf("I - CQ- %d\t RT- %d\t NR- %d\n", pss->current_queue,
             //         p->rtime, ps->num_run);
-            // cprintf("Oo - %d %d\n", ps->num_run, pss->num_run);
+            // cprintf("Oo - %p %d == \n", ps, pss->num_run);
+            // cprintf("Oo - %d ==\n", p->rtime);
             release(&ptable.lock);
             return 1;
         }
@@ -604,24 +619,24 @@ void scheduler(void) {
                 // cprintf("here )\n");
                 switchkvm();
                 c->proc = 0;
+                if (checkLessPriority2(p->priority)) {
+                    goto end;
+                }
                 // cprintf("here\n");
             }
 #endif
 #ifdef DEFAULT
             chosen = p;
-            // Switch to chosen process.  It is the process's job
-            // to release ptable.lock and then reacquire it
-            // before jumping back to us.
             c->proc = chosen;
             switchuvm(chosen);
             chosen->state = RUNNING;
             swtch(&(c->scheduler), chosen->context);
             switchkvm();
-            // Process is done running for now.
-            // It should have changed its p->state before coming back.
             c->proc = 0;
 #endif
         }
+        chos->num_run++;
+        chos->num_run--;
 #ifdef FCFS
         if (flag == 1) {
             c->proc = chosen;
@@ -643,6 +658,9 @@ void scheduler(void) {
             switchkvm();
             c->proc = 0;
         }
+#endif
+#ifdef PBS
+    end:
 #endif
         release(&ptable.lock);
     }

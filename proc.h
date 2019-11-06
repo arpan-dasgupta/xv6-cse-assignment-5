@@ -60,14 +60,10 @@ struct proc {
 
 // void updateProc();
 
-// Process memory is laid out contiguously, low addresses first:
-//   text
-//   original data and bss
-//   fixed-size stack
-//   expandable heap
 void printStatus();
 struct proc_stat *myprocstat(void);
 int getpinfo(struct proc_stat *, int);
 int checkLessPriority(int);
+int checkLessPriority2(int);
 void checkAging(int);
 // int getpid();
